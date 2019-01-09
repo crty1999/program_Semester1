@@ -1,7 +1,7 @@
 import random
 
 
-def is_prime(n):
+def is_prime(n: int) -> bool:
     """
     >>> is_prime(2)
     True
@@ -10,74 +10,95 @@ def is_prime(n):
     >>> is_prime(8)
     False
     """
-    # PUT YOUR CODE HERE
-    for i in range(2, int(n / 2)):
-        if n % i == 0:
-            print("False")
-            break
+    if n > 3 and (n % 2 != 0 or n % 3 != 0):
+        return True
     else:
-        print("True")
+        return False
 
 
-
-def gcd(a, b):
-    """Returns the greatest common divisor of a and b.
-    Should be implemented using recursion.
-
-    >>> gcd(34, 19)
-    1
-    >>> gcd(39, 91)
-    13
-    >>> gcd(20, 30)
-    10
-    >>> gcd(40, 40)
-    40
+def gcd(a: int, b: int) -> int:
     """
-    if b > a:
-        return gcd(b, a)
+    >>> gcd(12, 15)
+    3
+    >>> gcd(3, 7)
+    1
+    """
+    while a != b:
+        if a > b:
+            a = a - b
+        else:
+            b = b - a
+    return a
 
-    if a % b == 0:
-        return b
 
-    return gcd(b, a % b)
+def multiplicative_inverse(e: int, phi: int) -> int:
+    """
+    >>> multiplicative_inverse(7, 40)
+    23
+    """
+    f = []
+    w = phi
+    while True:
+        mas = []
+        mas.append(phi // e)
+        mas.append(0)
+        mas.append(0)
+        f.append(mas)
+        if phi % e == 0:
+            break
+        c = phi % e
+        phi = e
+        e = c
+    f[len(f) - 1][2] = 1
+    for i in range(len(f) - 1, 0, -1):
+        f[i - 1][2] = f[i][1] - f[i][2] * f[i - 1][0]
+        f[i - 1][1] = f[i][2]
+    return (f[0][2] + w) % w
 
-def generate_keypair(p, q):
-    if not (is_prime(p) and is_prime(q)): print("True")
 
- #       raise ValueError('Both numbers must be prime.')
-  #  elif p == q:
-   #     raise ValueError('p and q cannot be equal')
 
-    # n = pq
-    # PUT YOUR CODE HERE
+def generate_keypair(p: int, q: int) -> tuple:
+    if not (is_prime(p) and is_prime(q)):
+        raise ValueError('Both numbers must be prime.')
+    elif p == q:
+        raise ValueError('p and q cannot be equal')
 
-    n = p * q;
+    n = p * q
 
-    # phi = (p-1)(q-1)
-    # PUT YOUR CODE HERE
-
-    phi = (p -1)*(q -1);
+    phi = (p - 1) * (q - 1)
 
     # Choose an integer e such that e and phi(n) are coprime
     e = random.randrange(1, phi)
 
-    # Use Euclid's Algorithm to verify that e and phi(n) are comprime
     g = gcd(e, phi)
     while g != 1:
         e = random.randrange(1, phi)
         g = gcd(e, phi)
 
-    # Use Extended Euclid's Algorithm to generate the private key
+        # Use Extended Euclid's Algorithm to generate the private key
     d = multiplicative_inverse(e, phi)
     # Return public and private keypair
     # Public key is (e, n) and private key is (d, n)
     return ((e, n), (d, n))
 
-def multiplicative_inverse(e, phi):
-    e = e % phi;
-    for x in range(1, 6):
-        if ((e*x) % phi == 1 ):
-            return x
+
+def encrypt(pk: int, plaintext: str) -> list:
+    # Unpack the key into it's components
+    key, n = pk
+    # Convert each letter in the plaintext to numbers based on
+    # the character using a^b mod m
+    cipher = [(ord(char) ** key) % n for char in plaintext]
+    # Return the array of bytes
+    return cipher
+
+
+def decrypt(pk: int, ciphertext: list) -> str:
+    # Unpack the key into its components
+    key, n = pk
+    # Generate the plaintext based on the ciphertext and key using a^b mod m
+    plain = [chr((char ** key) % n) for char in ciphertext]
+    # Return the array of bytes as a string
+    return ''.join(plain)
 
 
 if __name__ == '__main__':
