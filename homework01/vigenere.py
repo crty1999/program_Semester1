@@ -1,4 +1,4 @@
-def encrypt_vigenere(plaintext, keyword):
+def encrypt_vigenere(plaintext: str, keyword: str) -> str:
     """
     Encrypts plaintext using a Vigenere cipher.
     >>> encrypt_vigenere("PYTHON", "A")
@@ -9,22 +9,33 @@ def encrypt_vigenere(plaintext, keyword):
     'LXFOPVEFRNHR'
     """
     ciphertext = ''
-    for index, ch in enumerate(plaintext):
-        if 'a' <= ch <= 'z' or 'A' <= ch <= 'Z':
-            shift = ord(keyword[index % len(keyword)])
-            shift -= ord('a') if 'a' <= ch <= 'z' else ord('A')
-            code = ord(ch) + shift
-            if 'a' <= ch <= 'z' and code > ord('z'):
-                code -= 26
-            elif 'A' <= ch <= 'Z' and code > ord('Z'):
-                code -= 26
-            ciphertext += chr(code)
+    shift = []
+    for i in range(len(keyword)):
+        if keyword[i].isupper():
+            shift.append(ord(keyword[i]) - 65)
+        elif keyword[i].islower():
+            shift.append(ord(keyword[i]) - 97)
         else:
-            chiphertext += ch
+            print('ОШИБКА(введена не буква)')
+    if len(plaintext) > len(shift):
+        shift *= len(plaintext) // len(shift) + 1
+    for i in range(len(plaintext)):
+        if plaintext[i].islower():
+            if ord(plaintext[i]) + shift[i] > 122:
+                ciphertext += chr(ord(plaintext[i]) + shift[i] - 26)
+            else:
+                ciphertext += chr(ord(plaintext[i]) + shift[i])
+        elif plaintext[i].isupper():
+            if ord(plaintext[i]) + shift[i] > 90:
+                ciphertext += chr(ord(plaintext[i]) + shift[i] - 26)
+            else:
+                ciphertext += chr(ord(plaintext[i]) + shift[i])
+        else:
+            ciphertext += plaintext[i]
     return ciphertext
 
 
-def decrypt_vigenere(ciphertext, keyword):
+def decrypt_vigenere(ciphertext: str, keyword: str) -> str:
     """
     Decrypts a ciphertext using a Vigenere cipher.
     >>> decrypt_vigenere("PYTHON", "A")
@@ -35,16 +46,27 @@ def decrypt_vigenere(ciphertext, keyword):
     'ATTACKATDAWN'
     """
     plaintext = ''
-    for index, ch in enumerate(ciphertext):
-        if 'a' <= ch <= 'z' or 'A' <= ch <= 'Z':
-            shift = ord(keyword[index % len(keyword)])
-            shift -= ord('a') if 'a' <= ch <= 'z' else ord('A')
-            code = ord(ch) - shift
-            if 'a' <= ch <= 'z' and code < ord('a'):
-                code += 26
-            elif 'A' <= ch <= 'Z' and code < ord('A'):
-                code += 26
-            plaintext += chr(code)
+    shift = []
+    for i in range(len(keyword)):
+        if keyword[i].isupper():
+            shift.append(ord(keyword[i]) - 65)
+        elif keyword[i].islower():
+            shift.append(ord(keyword[i]) - 97)
         else:
-            plaintext += ch
+            print('ОШИБКА(введена не буква)')
+    if len(ciphertext) > len(shift):
+        shift *= len(ciphertext) // len(shift) + 1
+    for i in range(len(ciphertext)):
+        if ciphertext[i].islower():
+            if ord(ciphertext[i]) + shift[i] < 97:
+                plaintext += chr(ord(ciphertext[i]) - shift[i] + 26)
+            else:
+                plaintext += chr(ord(ciphertext[i]) - shift[i])
+        elif ciphertext[i].isupper():
+            if ord(ciphertext[i]) - shift[i] < 65:
+                plaintext += chr(ord(ciphertext[i]) - shift[i] + 26)
+            else:
+                plaintext += chr(ord(ciphertext[i]) - shift[i])
+        else:
+            plaintext += ciphertext[i]
     return plaintext
